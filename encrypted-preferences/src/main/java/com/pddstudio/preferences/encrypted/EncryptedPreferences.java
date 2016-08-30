@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.scottyab.aescrypt.AESCrypt;
 
@@ -14,6 +15,7 @@ import java.security.GeneralSecurityException;
  */
 public final class EncryptedPreferences {
 
+	private static final String TAG = EncryptedPreferences.class.getSimpleName();
 	private static EncryptedPreferences encryptedPreferences;
 
 	public static EncryptedPreferences getInstance(Context context) {
@@ -26,16 +28,25 @@ public final class EncryptedPreferences {
 	private final SharedPreferences sharedPreferences;
 	private final String            cryptoKey;
 	private final EncryptedEditor   encryptedEditor;
+	private final boolean           printDebugMessages;
 
 	private EncryptedPreferences(Context context) {
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		this.cryptoKey = "testPassword";
 		this.encryptedEditor = new EncryptedEditor(this);
+		this.printDebugMessages = context.getResources().getBoolean(R.bool.enable_debug_messages);
+	}
+
+	private synchronized void log(String logMessage) {
+		if (printDebugMessages) {
+			Log.d(TAG, logMessage);
+		}
 	}
 
 	private String encryptString(String message) {
 		try {
-			return AESCrypt.encrypt(cryptoKey, message);
+			String encString = AESCrypt.encrypt(cryptoKey, message);
+			return encodeCharset(encString);
 		} catch (GeneralSecurityException e) {
 			e.printStackTrace();
 			return null;
@@ -44,26 +55,49 @@ public final class EncryptedPreferences {
 
 	private String decryptString(String message) {
 		try {
-			return AESCrypt.encrypt(cryptoKey, message);
+			String decString = AESCrypt.encrypt(cryptoKey, message);
+			return encodeCharset(decString);
 		} catch (GeneralSecurityException e) {
 			return null;
 		}
 	}
 
+	private String encodeCharset(String value) {
+		String encodedString = value;
+		for(int i = 0; i < encodedString.length(); i++) {
+			char currentChar = encodedString.charAt(i);
+			if (!Character.isLetterOrDigit(currentChar)) {
+				encodedString = encodedString.replace(currentChar, '0');
+			}
+		}
+		Log.d(TAG, "encodeCharset() : " + value + " => " + encodedString);
+		return encodedString;
+	}
+
+	private boolean containsEncryptedKey(String encryptedKey) {
+		return sharedPreferences.contains(encryptedKey);
+	}
+
 	private <T> Object decryptType(String key, Object type, T defaultType) {
 		String encKey = encryptString(key);
 
-		if (TextUtils.isEmpty(encKey) || !contains(encKey)) {
+		log("decryptType() => encryptedKey => " + encKey);
+
+		if (TextUtils.isEmpty(encKey) || !containsEncryptedKey(encKey)) {
+			log("unable to encrypt or find key => " + encKey);
 			return defaultType;
 		}
 
 		String value = sharedPreferences.getString(encKey, null);
+
+		log("decryptType() => encryptedValue => " + value);
 
 		if (TextUtils.isEmpty(value)) {
 			return defaultType;
 		}
 
 		String orgValue = decryptString(value);
+		log("decryptType() => orgValue => " + orgValue);
 
 		if (TextUtils.isEmpty(orgValue)) {
 			return defaultType;
@@ -127,10 +161,17 @@ public final class EncryptedPreferences {
 
 	public final class EncryptedEditor {
 
+		private final String TAG = EncryptedEditor.class.getSimpleName();
 		private final EncryptedPreferences encryptedPreferences;
 
 		private EncryptedEditor(EncryptedPreferences encryptedPreferences) {
 			this.encryptedPreferences = encryptedPreferences;
+		}
+
+		private synchronized void log(String logMessage) {
+			if (encryptedPreferences.printDebugMessages) {
+				Log.d(TAG, logMessage);
+			}
 		}
 
 		private SharedPreferences.Editor editor() {
@@ -138,11 +179,14 @@ public final class EncryptedPreferences {
 		}
 
 		private String encryptValue(String value) {
-			return encryptedPreferences.encryptString(value);
+			String encryptedString = encryptedPreferences.encryptString(value);
+			log("encryptValue() => " + encryptedString);
+			return encryptedString;
 		}
 
 		private void putValue(String key, String value) {
-			editor().putString(encryptValue(key), encryptValue(value));
+			log("putValue() => " + key + " [" + encryptValue(key) + "] || " + value + " [" + encryptValue(value) + "]");
+			editor().putString(encryptValue(key), encryptValue(value)).apply();
 		}
 
 		public EncryptedEditor putString(String key, String value) {
