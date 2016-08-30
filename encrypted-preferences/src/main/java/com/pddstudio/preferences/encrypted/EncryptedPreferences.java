@@ -32,6 +32,7 @@ public final class EncryptedPreferences {
 
 	private EncryptedPreferences(Context context) {
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		//TODO: replace with password function
 		this.cryptoKey = "testPassword";
 		this.encryptedEditor = new EncryptedEditor(this);
 		this.printDebugMessages = context.getResources().getBoolean(R.bool.enable_debug_messages);
@@ -64,7 +65,7 @@ public final class EncryptedPreferences {
 
 	private String encodeCharset(String value) {
 		String encodedString = value;
-		for(int i = 0; i < encodedString.length(); i++) {
+		for (int i = 0; i < encodedString.length(); i++) {
 			char currentChar = encodedString.charAt(i);
 			if (!Character.isLetterOrDigit(currentChar)) {
 				encodedString = encodedString.replace(currentChar, '0');
