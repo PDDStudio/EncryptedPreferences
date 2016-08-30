@@ -112,6 +112,10 @@ public final class EncryptedPreferences {
 		return (Float) decryptType(key, 0f, defaultValue);
 	}
 
+	public String getString(String key, String defaultValue) {
+		return (String) decryptType(key, "", defaultValue);
+	}
+
 	public boolean contains(String key) {
 		String encKey = encryptString(key);
 		return sharedPreferences.contains(encKey);
