@@ -121,7 +121,7 @@ public final class EncryptedPreferences {
 		return encryptedEditor;
 	}
 
-	private final class EncryptedEditor {
+	public final class EncryptedEditor {
 
 		private final EncryptedPreferences encryptedPreferences;
 
