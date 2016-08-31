@@ -216,12 +216,17 @@ public final class EncryptedPreferences {
 		}
 
 		public EncryptedEditor remove(String key) {
-			//TODO: implement function
+			String encKey = encryptValue(key);
+			if(containsEncryptedKey(encKey)) {
+				log("remove() => " + key + " [ " + encKey + " ]");
+				editor().remove(encKey);
+			}
 			return this;
 		}
 
 		public EncryptedEditor clear() {
-			//TODO: implement function
+			log("clear() => clearing preferences.");
+			editor().clear();
 			return this;
 		}
 
