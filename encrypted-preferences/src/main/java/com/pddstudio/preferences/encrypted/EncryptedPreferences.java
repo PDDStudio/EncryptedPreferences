@@ -32,16 +32,29 @@ public final class EncryptedPreferences {
 
 	private EncryptedPreferences(Context context) {
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		//TODO: replace with password function
-		this.cryptoKey = "testPassword";
+		this.cryptoKey = generateEncryptionString(context);
 		this.encryptedEditor = new EncryptedEditor(this);
 		this.printDebugMessages = context.getResources().getBoolean(R.bool.enable_debug_messages);
+	}
+
+	private EncryptedPreferences(Builder builder) {
+		//TODO: check int in getSharedPreferences()
+		this.sharedPreferences = TextUtils.isEmpty(builder.prefsName) ? PreferenceManager.getDefaultSharedPreferences(builder.context) : builder.context
+				.getSharedPreferences(builder.prefsName, 0);
+		this.cryptoKey = TextUtils.isEmpty(builder.encryptionPassword) ? generateEncryptionString(builder.context) : builder.encryptionPassword;
+		this.encryptedEditor = new EncryptedEditor(this);
+		this.printDebugMessages = builder.context.getResources().getBoolean(R.bool.enable_debug_messages);
 	}
 
 	private synchronized void log(String logMessage) {
 		if (printDebugMessages) {
 			Log.d(TAG, logMessage);
 		}
+	}
+
+	private String generateEncryptionString(Context context) {
+		//TODO: check for better unique encryption string
+		return context.getPackageName();
 	}
 
 	private String encryptString(String message) {
@@ -232,6 +245,32 @@ public final class EncryptedPreferences {
 
 		public void apply() {
 			editor().apply();
+		}
+
+	}
+
+	public final class Builder {
+
+		private final Context context;
+		private String encryptionPassword;
+		private String prefsName;
+
+		public Builder(Context context) {
+			this.context = context.getApplicationContext();
+		}
+
+		public Builder withEncryptionPassword(String encryptionPassword) {
+			this.encryptionPassword = encryptionPassword;
+			return this;
+		}
+
+		public Builder withPreferenceName(String preferenceName) {
+			this.prefsName = preferenceName;
+			return this;
+		}
+
+		public EncryptedPreferences build() {
+			return new EncryptedPreferences(this);
 		}
 
 	}
