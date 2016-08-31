@@ -40,7 +40,9 @@ public final class EncryptedPreferences {
 	private EncryptedPreferences(Builder builder) {
 		//TODO: check int in getSharedPreferences()
 		this.sharedPreferences = TextUtils.isEmpty(builder.prefsName) ? PreferenceManager.getDefaultSharedPreferences(builder.context) : builder.context
-				.getSharedPreferences(builder.prefsName, 0);
+				.getSharedPreferences(
+				builder.prefsName,
+				0);
 		this.cryptoKey = TextUtils.isEmpty(builder.encryptionPassword) ? generateEncryptionString(builder.context) : builder.encryptionPassword;
 		this.encryptedEditor = new EncryptedEditor(this);
 		this.printDebugMessages = builder.context.getResources().getBoolean(R.bool.enable_debug_messages);
@@ -230,7 +232,7 @@ public final class EncryptedPreferences {
 
 		public EncryptedEditor remove(String key) {
 			String encKey = encryptValue(key);
-			if(containsEncryptedKey(encKey)) {
+			if (containsEncryptedKey(encKey)) {
 				log("remove() => " + key + " [ " + encKey + " ]");
 				editor().remove(encKey);
 			}
@@ -249,26 +251,47 @@ public final class EncryptedPreferences {
 
 	}
 
+	/**
+	 * Class for configuring a new {@link EncryptedPreferences} instance.
+	 */
 	public final class Builder {
 
 		private final Context context;
-		private String encryptionPassword;
-		private String prefsName;
+		private       String  encryptionPassword;
+		private       String  prefsName;
 
+		/**
+		 * The Builder's constructor
+		 * @param context
+		 */
 		public Builder(Context context) {
 			this.context = context.getApplicationContext();
 		}
 
+		/**
+		 * Specify the encryption password which should be used when reading and writing values to preferences.
+		 * @param encryptionPassword - The encryption password which should be used when reading and writing values
+		 * @return
+		 */
 		public Builder withEncryptionPassword(String encryptionPassword) {
 			this.encryptionPassword = encryptionPassword;
 			return this;
 		}
 
+		/**
+		 * Specify the name of the SharedPreferences instance which should be used to read and write values to.
+		 * @param preferenceName - The name which will be used as SharedPreferences instance.
+		 * @return
+		 */
 		public Builder withPreferenceName(String preferenceName) {
 			this.prefsName = preferenceName;
 			return this;
 		}
 
+		/**
+		 * Build a new {@link EncryptedPreferences} instance with the specified configuration.
+		 * @return A new {@link EncryptedPreferences} instance with the specified configuration
+		 */
 		public EncryptedPreferences build() {
 			return new EncryptedPreferences(this);
 		}
