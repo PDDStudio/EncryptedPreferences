@@ -62,6 +62,9 @@ private void printValues() {
 
 For more information about how to read and write data head over to the [official Android Developer Guide](https://developer.android.com/training/basics/data-storage/shared-preferences.html).
 
+##Third-Party Libraries
+This library is using [AESCrypt-Android](https://github.com/scottyab/AESCrypt-Android) by [scottyab](https://github.com/scottyab).
+
 ##About & Contact
 - In case you've a question feel free to hit me up via E-Mail (patrick.pddstudio[at]googlemail.com) 
 - or [Google+](http://plus.google.com/+PatrickJung42) / Hangouts
