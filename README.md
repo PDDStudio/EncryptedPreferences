@@ -1,6 +1,8 @@
 ##EncryptedPreferences
 An Android Library to securely read and write encrypted values to your SharedPreferences.
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.pddstudio/encrypted-preferences/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.pddstudio/encrypted-preferences)
+
 ##Reason & Explanation
 
 When developing an Android application you often save primitive values to your application's internal storage, using [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences.html).
@@ -21,7 +23,7 @@ dependencies {
     compile 'com.pddstudio:encrypted-preferences:X.X.X'
 }
 ```
-Replace X.X.X with the current version - which can be found on [Maven Central]()
+Replace X.X.X with the current version - which can be found on [Maven Central](http://search.maven.org/#artifactdetails%7Ccom.pddstudio%7Cencrypted-preferences)
 
 ###Start using EncryptedPreferences
 To start using EncryptedPreferences you have to create a new instance using the `EncryptedPreferences.Builder`.
