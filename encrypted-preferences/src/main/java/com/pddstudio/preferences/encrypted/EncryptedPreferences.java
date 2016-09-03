@@ -352,7 +352,7 @@ public final class EncryptedPreferences {
 	/**
 	 * Class for configuring a new {@link EncryptedPreferences} instance.
 	 */
-	public final class Builder {
+	public static final class Builder {
 
 		private final Context context;
 		private       String  encryptionPassword;
