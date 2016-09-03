@@ -5,13 +5,13 @@ An Android Library to securely read and write encrypted values to your SharedPre
 
 ##Reason & Explanation
 
-When developing an Android application you often save primitive values to your application's internal storage, using [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences.html).
+When developing an Android application you often save primitive values to your application's internal storage using [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences.html).
 
-All values written to your SharedPreferences are stored unencrypted in a simple and plain `.xml` file inside your application's internal directory. In case you save sensitive or important data here, it can be easily read (and modified) by users with a rooted phone. To avoid this, I created EncryptedPreferences.
+All values written to your SharedPreferences are stored unencrypted in a simple and plain `.xml file` inside your application's internal directory. In case you save sensitive or important data here, it can be easily read (and modified) by users with a rooted phone. To avoid this, I created EncryptedPreferences.
 
-EncryptedPreferences is a simple wrapper around the oficial SharedPreferences, which saves all data encrypted using an AES 256-bit key. The library takes care about all heavy lifting, so all you have to do is to read and write your preferences as usual.
+EncryptedPreferences is a simple wrapper around the oficial SharedPreferences API, which saves all data (containing both, keys and values) encrypted using [Advanced Encryption Standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) (AES/256 bit key). The library takes care about all heavy lifting, so all you have to do is to read and write your preferences as usual.
 
-EncryptedPreferences aims to have the same API as the offical SharedPreferences, to make it as easy as possible to switch over.
+EncryptedPreferences aims to have the same API as the offical SharedPreferences, to make it as easy as possible to integrate it into your application.
 
 ##Getting Started
 
@@ -48,8 +48,7 @@ encryptedPreferences.edit()
 ```
 
 *Note:*
-
-As with the official SharedPreferences, make sure to call `apply()` in order to save your changes!
+As with the official SharedPreferences API, make sure to call `apply()` in order to save your changes!
 
 **Reading Values:**
 
@@ -62,7 +61,7 @@ private void printValues() {
 	}
 ```
 
-For more information about how to read and write data head over to the [official Android Developer Guide](https://developer.android.com/training/basics/data-storage/shared-preferences.html).
+For more information about how to read and write data to SharedPreferences, head over to the [official Android Developer Guide](https://developer.android.com/training/basics/data-storage/shared-preferences.html).
 
 ##Third-Party Libraries
 This library is using [AESCrypt-Android](https://github.com/scottyab/AESCrypt-Android) by [scottyab](https://github.com/scottyab).
