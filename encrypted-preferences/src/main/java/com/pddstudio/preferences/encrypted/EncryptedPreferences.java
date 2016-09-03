@@ -11,13 +11,18 @@ import com.scottyab.aescrypt.AESCrypt;
 import java.security.GeneralSecurityException;
 
 /**
- * Created by pddstudio on 30/08/16.
+ * An AES-256 encrypted {@linkplain SharedPreferences} class, to read and write encrypted preferences.
  */
 public final class EncryptedPreferences {
 
 	private static final String TAG = EncryptedPreferences.class.getSimpleName();
 	private static EncryptedPreferences encryptedPreferences;
 
+	/**
+	 * Retrieve an {@link EncryptedPreferences} instance with all default settings.
+	 * @param context
+	 * @return default {@link EncryptedPreferences}
+	 */
 	public static EncryptedPreferences getInstance(Context context) {
 		if (encryptedPreferences == null) {
 			encryptedPreferences = new EncryptedPreferences(context);
@@ -38,7 +43,6 @@ public final class EncryptedPreferences {
 	}
 
 	private EncryptedPreferences(Builder builder) {
-		//TODO: check int in getSharedPreferences()
 		this.sharedPreferences = TextUtils.isEmpty(builder.prefsName) ? PreferenceManager.getDefaultSharedPreferences(builder.context) : builder.context
 				.getSharedPreferences(
 				builder.prefsName,
@@ -146,31 +150,77 @@ public final class EncryptedPreferences {
 		}
 	}
 
+	/**
+	 * Retrieve an int value from the preferences.
+	 * @param key - The name of the preference to retrieve
+	 * @param defaultValue - Value to return if this preference does not exist
+	 * @return int - Returns the preference value if it exists, or defValue. Throws ClassCastException if there is a preference with this name that is not an
+	 * int.
+	 */
 	public int getInt(String key, int defaultValue) {
 		return (Integer) decryptType(key, 0, defaultValue);
 	}
 
+	/**
+	 * Retrieve a long value from the preferences.
+	 * @param key - The name of the preference to retrieve
+	 * @param defaultValue - Value to return if this preference does not exist
+	 * @return long - Returns the preference value if it exists, or defValue. Throws ClassCastException if there is a preference with this name that is not a
+	 * long
+	 */
 	public long getLong(String key, long defaultValue) {
 		return (Long) decryptType(key, 0L, defaultValue);
 	}
 
+	/**
+	 * Retrieve a boolean value from the preferences
+	 * @param key - The name of the preference to retrieve
+	 * @param defaultValue - Value to return if this preference does not exist
+	 * @return - Returns the preference value if it exists, or defValue. Throws ClassCastException if there is a preference with this name that is not a
+	 * boolean
+	 */
 	public boolean getBoolean(String key, boolean defaultValue) {
 		return (Boolean) decryptType(key, defaultValue, defaultValue);
 	}
 
+	/**
+	 * Retrieve a float value from the preferences
+	 * @param key - The name of the preference to retrieve
+	 * @param defaultValue - Value to return if this preference does not exist
+	 * @return float - Returns the preference value if it exists, or defValue. Throws ClassCastException if there is a preference with this name that is not a
+	 * float
+	 */
 	public float getFloat(String key, float defaultValue) {
 		return (Float) decryptType(key, 0f, defaultValue);
 	}
 
+	/**
+	 * Retrieve a String value from the preferences
+	 * @param key - The name of the preference to retrieve
+	 * @param defaultValue - Value to return if this preference does not exist
+	 * @return String - Returns the preference value if it exists, or defValue. Throws ClassCastException if there is a preference with this name that is not
+	 * a String
+	 */
 	public String getString(String key, String defaultValue) {
 		return (String) decryptType(key, "", defaultValue);
 	}
 
+	/**
+	 * Checks whether the preferences contains a preference.
+	 * @param key - The name of the preference to check
+	 * @return Returns true if the preference exists in the preferences, otherwise false.
+	 */
 	public boolean contains(String key) {
 		String encKey = encryptString(key);
 		return sharedPreferences.contains(encKey);
 	}
 
+	/**
+	 * Get the Editor for these preferences, through which you can make modifications to the data in the preferences and atomically commit those changes
+	 * back to
+	 * the SharedPreferences object.
+	 * @return {@link EncryptedEditor}
+	 */
 	public EncryptedEditor edit() {
 		return encryptedEditor;
 	}
