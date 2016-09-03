@@ -20,10 +20,10 @@ Add the library as dependency to your app's `build.gradle` file.
 
 ```
 dependencies {
-    compile 'com.pddstudio:encrypted-preferences:X.X.X'
+    compile 'com.pddstudio:encrypted-preferences:1.0.0'
 }
 ```
-Replace X.X.X with the current version - which can be found on [Maven Central](http://search.maven.org/#artifactdetails%7Ccom.pddstudio%7Cencrypted-preferences)
+Make sure you're always using the latest version, which can be found on [Maven Central](http://search.maven.org/#artifactdetails%7Ccom.pddstudio%7Cencrypted-preferences).
 
 ###Start using EncryptedPreferences
 To start using EncryptedPreferences you have to create a new instance using the `EncryptedPreferences.Builder`.
