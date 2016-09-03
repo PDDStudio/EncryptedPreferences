@@ -59,7 +59,6 @@ public final class EncryptedPreferences {
 	}
 
 	private String generateEncryptionString(Context context) {
-		//TODO: check for better unique encryption string
 		return context.getPackageName();
 	}
 
@@ -225,6 +224,10 @@ public final class EncryptedPreferences {
 		return encryptedEditor;
 	}
 
+	/**
+	 * Class used for modifying values in a {@link EncryptedPreferences} object. All changes you make in an editor are batched, and not copied back to the
+	 * original {@link EncryptedPreferences} until you call {@link EncryptedEditor#apply()}.
+	 */
 	public final class EncryptedEditor {
 
 		private final String TAG = EncryptedEditor.class.getSimpleName();
@@ -255,31 +258,66 @@ public final class EncryptedPreferences {
 			editor().putString(encryptValue(key), encryptValue(value)).apply();
 		}
 
+		/**
+		 * Set a String value in the preferences editor, to be written back once apply() is called.
+		 * @param key - The name of the preference to modify
+		 * @param value - The new value for the preference
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor putString(String key, String value) {
 			putValue(key, value);
 			return this;
 		}
 
+		/**
+		 * Set an int value in the preferences editor, to be written back once apply() is called.
+		 * @param key - The name of the preference to modify
+		 * @param value - The new value for the preference
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor putInt(String key, int value) {
 			putValue(key, String.valueOf(value));
 			return this;
 		}
 
+		/**
+		 * Set a long value in the preferences editor, to be written back once apply() is called.
+		 * @param key - The name of the preference to modify
+		 * @param value - The new value for the preference
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor putLong(String key, long value) {
 			putValue(key, String.valueOf(value));
 			return this;
 		}
 
+		/**
+		 * Set a float value in the preferences editor, to be written back once apply() is called.
+		 * @param key - The name of the preference to modify
+		 * @param value - The new value for the preference
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor putFloat(String key, float value) {
 			putValue(key, String.valueOf(value));
 			return this;
 		}
 
+		/**
+		 * Set a boolean value in the preferences editor, to be written back once apply() is called.
+		 * @param key - The name of the preference to modify
+		 * @param value - The new value for the preference
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor putBoolean(String key, boolean value) {
 			putValue(key, String.valueOf(value));
 			return this;
 		}
 
+		/**
+		 * Mark in the editor that a preference value should be removed, which will be done in the actual preferences once apply() is called.
+		 * @param key - The name of the preference to remove
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor remove(String key) {
 			String encKey = encryptValue(key);
 			if (containsEncryptedKey(encKey)) {
@@ -289,12 +327,22 @@ public final class EncryptedPreferences {
 			return this;
 		}
 
+		/**
+		 * Mark in the editor to remove all values from the preferences. Once commit is called, the only remaining preferences will be any that you have
+		 * defined in this editor.
+		 * @return Returns a reference to the same Editor object, so you can chain put calls together.
+		 */
 		public EncryptedEditor clear() {
 			log("clear() => clearing preferences.");
 			editor().clear();
 			return this;
 		}
 
+		/**
+		 * Commit your preferences changes back from this Editor to the {@link EncryptedPreferences} object it is editing. This atomically performs the
+		 * requested
+		 * modifications, replacing whatever is currently in the {@link EncryptedPreferences}.
+		 */
 		public void apply() {
 			editor().apply();
 		}
