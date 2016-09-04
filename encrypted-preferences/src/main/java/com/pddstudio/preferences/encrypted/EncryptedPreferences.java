@@ -33,12 +33,14 @@ public final class EncryptedPreferences {
 	private final SharedPreferences sharedPreferences;
 	private final String            cryptoKey;
 	private final EncryptedEditor   encryptedEditor;
+	private final Utils             utils;
 	private final boolean           printDebugMessages;
 
 	private EncryptedPreferences(Context context) {
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		this.cryptoKey = generateEncryptionString(context);
 		this.encryptedEditor = new EncryptedEditor(this);
+		this.utils = new Utils(this);
 		this.printDebugMessages = context.getResources().getBoolean(R.bool.enable_debug_messages);
 	}
 
@@ -49,6 +51,7 @@ public final class EncryptedPreferences {
 				0);
 		this.cryptoKey = TextUtils.isEmpty(builder.encryptionPassword) ? generateEncryptionString(builder.context) : builder.encryptionPassword;
 		this.encryptedEditor = new EncryptedEditor(this);
+		this.utils = new Utils(this);
 		this.printDebugMessages = builder.context.getResources().getBoolean(R.bool.enable_debug_messages);
 	}
 
@@ -222,6 +225,45 @@ public final class EncryptedPreferences {
 	 */
 	public EncryptedEditor edit() {
 		return encryptedEditor;
+	}
+
+	/**
+	 * Get the {@link Utils} instance for this EncryptedPreferences configuration.
+	 * @return The {@link Utils} instance for this EncryptedPreferences configuration.
+	 */
+	public Utils getUtils() {
+		return utils;
+	}
+
+	/**
+	 * A class for several utility methods.
+	 */
+	public final class Utils {
+
+		private final EncryptedPreferences encryptedPreferences;
+
+		private Utils(EncryptedPreferences encryptedPreferences) {
+			this.encryptedPreferences = encryptedPreferences;
+		}
+
+		/**
+		 * Utility method to retrieve the encrypted value of a string using the current {@link EncryptedPreferences} configuration.
+		 * @param value - String which should be encrypted
+		 * @return The encrypted value of the given String
+		 */
+		public String encryptStringValue(String value) {
+			return encryptedPreferences.encryptString(value);
+		}
+
+		/**
+		 * Utility method to decrypt the given String using the current {@link EncryptedPreferences} configuration.
+		 * @param value - String which should be decrypted
+		 * @return The decrypted value of the given String
+		 */
+		public String decryptStringValue(String value) {
+			return encryptedPreferences.decryptString(value);
+		}
+
 	}
 
 	/**
