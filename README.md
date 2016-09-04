@@ -65,6 +65,25 @@ private void printValues() {
 
 For more information about how to read and write data to SharedPreferences, head over to the [official Android Developer Guide](https://developer.android.com/training/basics/data-storage/shared-preferences.html).
 
+**Utilities:**
+
+Since version 1.0.1 EncryptedPreferences has a utility class, which might come in handy for several usecases beside persisting data. The `EncryptedPreferences.Utils` class is bound to your `EncryptedPreferences` instance and uses the same configuration.
+
+You can retrieve the `EncryptedPreferences.Utils` instance by calling `getUtils()` on your `EncryptedPreferences` object.
+
+*Example:*
+
+```java
+private void utilsExample() {
+		//get the encrypted value for an api key while debugging, so we don't have to save the original api key as plain text in production.
+		String encryptedApiKey = encryptedPreferences.getUtils().encryptStringValue("SOME_API_KEY_HERE");
+		Log.d("MainActivity", "encryptedApiKey => " + encryptedApiKey);
+		//in production we simply use the utility method with the encrypted value which we got from debugging.
+		String decryptedApiKey = encryptedPreferences.getUtils().decryptStringValue(encryptedApiKey);
+		Log.d("MainActivity", "decryptedApiKey => " + decryptedApiKey);
+	}
+```
+
 ##Third-Party Libraries
 This library is using [AESCrypt-Android](https://github.com/scottyab/AESCrypt-Android) by [scottyab](https://github.com/scottyab).
 
