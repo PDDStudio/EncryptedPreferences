@@ -77,22 +77,24 @@ public final class EncryptedPreferences {
 
 	private String decryptString(String message) {
 		try {
-			String decString = AESCrypt.encrypt(cryptoKey, message);
-			return encodeCharset(decString);
+			String decString = removeEncoding(message);
+			return AESCrypt.decrypt(cryptoKey, decString);
 		} catch (GeneralSecurityException e) {
 			return null;
 		}
 	}
 
+	private String removeEncoding(String value) {
+		String encodedString = value;
+		encodedString = encodedString.replaceAll("x0P1Xx", "\\+").replaceAll("x0P2Xx", "/").replaceAll("x0P3Xx", "=");
+		log("removeEncoding() : " + value + " => " + encodedString);
+		return encodedString;
+	}
+
 	private String encodeCharset(String value) {
 		String encodedString = value;
-		for (int i = 0; i < encodedString.length(); i++) {
-			char currentChar = encodedString.charAt(i);
-			if (!Character.isLetterOrDigit(currentChar)) {
-				encodedString = encodedString.replace(currentChar, '0');
-			}
-		}
-		Log.d(TAG, "encodeCharset() : " + value + " => " + encodedString);
+		encodedString = encodedString.replaceAll("\\+", "x0P1Xx").replaceAll("/", "x0P2Xx").replaceAll("=", "x0P3Xx");
+		log("encodeCharset() : " + value + " => " + encodedString);
 		return encodedString;
 	}
 
