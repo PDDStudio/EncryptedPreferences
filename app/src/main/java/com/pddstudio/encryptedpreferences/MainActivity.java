@@ -8,9 +8,9 @@ import com.pddstudio.preferences.encrypted.EncryptedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
-	private static final String TEST_KEY_VALUE_STRING = "testValueString";
-	private static final String TEST_KEY_VALUE_FLOAT = "testValueFloat";
-	private static final String TEST_KEY_VALUE_LONG = "testValueLong";
+	private static final String TEST_KEY_VALUE_STRING  = "testValueString";
+	private static final String TEST_KEY_VALUE_FLOAT   = "testValueFloat";
+	private static final String TEST_KEY_VALUE_LONG    = "testValueLong";
 	private static final String TEST_KEY_VALUE_BOOLEAN = "testValueBoolean";
 
 	private EncryptedPreferences encryptedPreferences;
@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 		//print the values
 		printValues();
 		printSeperatorLine();
+		utilsExample();
+		printSeperatorLine();
 	}
 
 	private void printSeperatorLine() {
@@ -37,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
 
 	private void saveValues() {
 		encryptedPreferences.edit()
-				.putString(TEST_KEY_VALUE_STRING, "testString")
-				.putFloat(TEST_KEY_VALUE_FLOAT, 1.5f)
-				.putLong(TEST_KEY_VALUE_LONG, 10L)
-				.putBoolean(TEST_KEY_VALUE_BOOLEAN, false)
-				.apply();
+							.putString(TEST_KEY_VALUE_STRING, "testString")
+							.putFloat(TEST_KEY_VALUE_FLOAT, 1.5f)
+							.putLong(TEST_KEY_VALUE_LONG, 10L)
+							.putBoolean(TEST_KEY_VALUE_BOOLEAN, false)
+							.apply();
 		Log.d("MainActivity", "done saving preferences!");
 	}
 
@@ -57,6 +59,15 @@ public class MainActivity extends AppCompatActivity {
 		Log.d("MainActivity", TEST_KEY_VALUE_FLOAT + " => " + encryptedPreferences.getFloat(TEST_KEY_VALUE_FLOAT, 0));
 		Log.d("MainActivity", TEST_KEY_VALUE_LONG + " => " + encryptedPreferences.getLong(TEST_KEY_VALUE_LONG, 0));
 		Log.d("MainActivity", TEST_KEY_VALUE_BOOLEAN + " => " + encryptedPreferences.getBoolean(TEST_KEY_VALUE_BOOLEAN, true));
+	}
+
+	private void utilsExample() {
+		//get the encrypted value for an api key while debugging, so we don't have to save the original api key as plain text in production.
+		String encryptedApiKey = encryptedPreferences.getUtils().encryptStringValue("SOME_API_KEY_HERE");
+		Log.d("MainActivity", "encryptedApiKey => " + encryptedApiKey);
+		//in production we simply use the utility method with the encrypted value which we got from debugging.
+		String decryptedApiKey = encryptedPreferences.getUtils().decryptStringValue(encryptedApiKey);
+		Log.d("MainActivity", "decryptedApiKey => " + decryptedApiKey);
 	}
 
 }
