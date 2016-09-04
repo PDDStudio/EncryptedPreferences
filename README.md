@@ -11,9 +11,9 @@ When developing an Android application you often save primitive values to your a
 
 All values written to your SharedPreferences are stored unencrypted in a simple and plain `.xml file` inside your application's internal directory. In case you save sensitive or important data here, it can be easily read (and modified) by users with a rooted phone. To avoid this, I created EncryptedPreferences.
 
-EncryptedPreferences is a simple wrapper around the oficial SharedPreferences API, which saves all data (containing both, keys and values) encrypted using [Advanced Encryption Standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) (AES/256 bit key). The library takes care about all heavy lifting, so all you have to do is to read and write your preferences as usual.
+EncryptedPreferences is a simple wrapper around the official SharedPreferences API, which saves all data (containing both, keys and values) encrypted using [Advanced Encryption Standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) (AES/256 bit key). The library takes care about all heavy lifting, so all you have to do is to read and write your preferences as usual.
 
-EncryptedPreferences aims to have the same API as the offical SharedPreferences, to make it as easy as possible to integrate it into your application.
+EncryptedPreferences aims to have the same API as the official SharedPreferences, to make it as easy as possible to integrate it into your application.
 
 ##Getting Started
 
