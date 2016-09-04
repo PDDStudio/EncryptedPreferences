@@ -2,6 +2,8 @@
 An Android Library to securely read and write encrypted values to your SharedPreferences.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.pddstudio/encrypted-preferences/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.pddstudio/encrypted-preferences)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-EncryptedPreferences-green.svg?style=true)](https://android-arsenal.com/details/1/4280)
+
 
 ##Reason & Explanation
 
