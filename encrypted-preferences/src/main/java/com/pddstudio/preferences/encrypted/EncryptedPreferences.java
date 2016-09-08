@@ -20,12 +20,14 @@ public final class EncryptedPreferences {
 
 	/**
 	 * Retrieve an {@link EncryptedPreferences} instance with all default settings.
+	 * @deprecated Due to security reasons it's recommended to use {@link Builder} for instance creation instead.
 	 * @param context
 	 * @return default {@link EncryptedPreferences}
 	 */
+	@Deprecated
 	public static EncryptedPreferences getInstance(Context context) {
 		if (encryptedPreferences == null) {
-			encryptedPreferences = new EncryptedPreferences(context);
+			encryptedPreferences = new EncryptedPreferences.Builder(context).build();
 		}
 		return encryptedPreferences;
 	}
@@ -36,20 +38,17 @@ public final class EncryptedPreferences {
 	private final Utils             utils;
 	private final boolean           printDebugMessages;
 
-	private EncryptedPreferences(Context context) {
-		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		this.cryptoKey = generateEncryptionString(context);
-		this.encryptedEditor = new EncryptedEditor(this);
-		this.utils = new Utils(this);
-		this.printDebugMessages = context.getResources().getBoolean(R.bool.enable_debug_messages);
-	}
-
 	private EncryptedPreferences(Builder builder) {
 		this.sharedPreferences = TextUtils.isEmpty(builder.prefsName) ? PreferenceManager.getDefaultSharedPreferences(builder.context) : builder.context
 				.getSharedPreferences(
 				builder.prefsName,
 				0);
-		this.cryptoKey = TextUtils.isEmpty(builder.encryptionPassword) ? generateEncryptionString(builder.context) : builder.encryptionPassword;
+		if(TextUtils.isEmpty(builder.encryptionPassword)) {
+			throw new RuntimeException("Unable to initialize EncryptedPreferences! Did you forget to set a password using Builder.withEncryptionPassword" +
+											   "(encryptionKey) ?");
+		} else {
+			this.cryptoKey = builder.encryptionPassword;
+		}
 		this.encryptedEditor = new EncryptedEditor(this);
 		this.utils = new Utils(this);
 		this.printDebugMessages = builder.context.getResources().getBoolean(R.bool.enable_debug_messages);
@@ -59,10 +58,6 @@ public final class EncryptedPreferences {
 		if (printDebugMessages) {
 			Log.d(TAG, logMessage);
 		}
-	}
-
-	private String generateEncryptionString(Context context) {
-		return context.getPackageName();
 	}
 
 	private String encryptString(String message) {
