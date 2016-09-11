@@ -3,10 +3,12 @@ package com.pddstudio.encryptedpreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.pddstudio.preferences.encrypted.EncryptedPreferences;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, EncryptedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String TEST_KEY_VALUE_STRING  = "testValueString";
 	private static final String TEST_KEY_VALUE_FLOAT   = "testValueFloat";
@@ -14,26 +16,50 @@ public class MainActivity extends AppCompatActivity {
 	private static final String TEST_KEY_VALUE_BOOLEAN = "testValueBoolean";
 
 	private EncryptedPreferences encryptedPreferences;
+	
+	private Button addRandomValueButton;
+	private Button registerListenerButton;
+	private Button unregisterListenerButton;
+	private Button importMockPreferencesButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		encryptedPreferences = EncryptedPreferences.getInstance(this);
+
+		//register demo buttons
+		addRandomValueButton = (Button) findViewById(R.id.add_random_value_button);
+		addRandomValueButton.setOnClickListener(this);
+		registerListenerButton = (Button) findViewById(R.id.register_listener_button);
+		registerListenerButton.setOnClickListener(this);
+		unregisterListenerButton = (Button) findViewById(R.id.unregister_listener_button);
+		unregisterListenerButton.setOnClickListener(this);
+		importMockPreferencesButton = (Button) findViewById(R.id.import_preferences_button);
+		importMockPreferencesButton.setOnClickListener(this);
+
+		//create EncryptedPreferences instance
+		encryptedPreferences = new EncryptedPreferences.Builder(this).withEncryptionPassword("example").withOnSharedPreferenceChangeListener(this).build();
+
 		//save the preferences
 		saveValues();
-		printSeperatorLine();
+		printSeparatorLine();
 		//validate the preferences
 		validateValues();
-		printSeperatorLine();
+		printSeparatorLine();
 		//print the values
 		printValues();
-		printSeperatorLine();
+		printSeparatorLine();
 		utilsExample();
-		printSeperatorLine();
+		printSeparatorLine();
 	}
 
-	private void printSeperatorLine() {
+	@Override
+	protected void onDestroy() {
+		encryptedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+		super.onDestroy();
+	}
+
+	private void printSeparatorLine() {
 		Log.d("MainActivity", "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
 	}
 
@@ -68,6 +94,32 @@ public class MainActivity extends AppCompatActivity {
 		//in production we simply use the utility method with the encrypted value which we got from debugging.
 		String decryptedApiKey = encryptedPreferences.getUtils().decryptStringValue(encryptedApiKey);
 		Log.d("MainActivity", "decryptedApiKey => " + decryptedApiKey);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.add_random_value_button:
+				MockUtils.addRandomValue(encryptedPreferences);
+				break;
+			case R.id.register_listener_button:
+				encryptedPreferences.registerOnSharedPreferenceChangeListener(this);
+				Log.d("MainActivity", "registered listener!");
+				break;
+			case R.id.unregister_listener_button:
+				encryptedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+				Log.d("MainActivity", "unregistered listener!");
+				break;
+			case R.id.import_preferences_button:
+				encryptedPreferences.importSharedPreferences(MockUtils.createMockSharedPreferences(this), true, true);
+				Log.d("MainActivity", "created and imported mocked preferences!");
+				break;
+		}
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(EncryptedPreferences encryptedPreferences, String key) {
+		Log.d("MainActivity", "onSharedPreferenceChanged() => key: " + key);
 	}
 
 }

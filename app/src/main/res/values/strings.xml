@@ -1,3 +1,7 @@
 <resources>
 	<string name="app_name">EncryptedPreferences</string>
+	<string name="btn_add_random">Add random value</string>
+	<string name="btn_register_listener">Register Preference Listener</string>
+	<string name="btn_unregister_listener">Unregister Preference Listener</string>
+	<string name="btn_import_preferences">Import Mocked Preferences</string>
 </resources>
