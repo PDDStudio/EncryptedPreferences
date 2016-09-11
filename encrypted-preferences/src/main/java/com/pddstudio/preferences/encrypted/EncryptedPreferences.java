@@ -9,6 +9,9 @@ import android.util.Log;
 import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An AES-256 encrypted {@linkplain SharedPreferences} class, to read and write encrypted preferences.
@@ -17,6 +20,27 @@ public final class EncryptedPreferences {
 
 	private static final String TAG = EncryptedPreferences.class.getSimpleName();
 	private static EncryptedPreferences encryptedPreferences;
+	private static EncryptedPreferences singletonInstance;
+
+	/**
+	 * Interface definition for a callback to be invoked when a shared
+	 * preference is changed.
+	 */
+	public interface OnSharedPreferenceChangeListener {
+
+		/**
+		 * Called when a shared preference is changed, added, or removed. This
+		 * may be called even if a preference is set to its existing value.
+		 *
+		 * <p>This callback will be run on your main thread.
+		 *
+		 * @param encryptedPreferences The {@link EncryptedPreferences} that received
+		 *            the change.
+		 * @param key The key of the preference that was changed, added, or
+		 *            removed.
+		 */
+		void onSharedPreferenceChanged(EncryptedPreferences encryptedPreferences, String key);
+	}
 
 	/**
 	 * Retrieve an {@link EncryptedPreferences} instance with all default settings.
@@ -32,19 +56,32 @@ public final class EncryptedPreferences {
 		return encryptedPreferences;
 	}
 
-	private final SharedPreferences sharedPreferences;
-	private final String            cryptoKey;
-	private final EncryptedEditor   encryptedEditor;
-	private final Utils             utils;
-	private final boolean           printDebugMessages;
+	/**
+	 * Retrieve the configured {@link EncryptedPreferences} instance.
+	 * Make sure to call {@link Builder#withSaveAsSingleton(boolean)} to initialize the singleton, otherwise a {@link RuntimeException} will be thrown.
+	 * @return The configured {@link EncryptedPreferences} instance.
+	 */
+	public static EncryptedPreferences getSingletonInstance() {
+		if (singletonInstance == null) {
+			throw new RuntimeException("Singleton instance doesn't exist. Did you forget to set Builder.withSaveAsSingleton(true) ?");
+		}
+		return singletonInstance;
+	}
+
+	private final SharedPreferences                          sharedPreferences;
+	private final String                                     cryptoKey;
+	private final EncryptedEditor                            encryptedEditor;
+	private final Utils                                      utils;
+	private final boolean                                    printDebugMessages;
+	private final List<OnSharedPreferenceChangeListenerImpl> listeners;
 
 	private EncryptedPreferences(Builder builder) {
 		this.sharedPreferences = TextUtils.isEmpty(builder.prefsName) ? PreferenceManager.getDefaultSharedPreferences(builder.context) : builder.context
 				.getSharedPreferences(
 				builder.prefsName,
 				0);
-		if(TextUtils.isEmpty(builder.encryptionPassword)) {
-			throw new RuntimeException("Unable to initialize EncryptedPreferences! Did you forget to set a password using Builder.withEncryptionPassword" +
+		if (TextUtils.isEmpty(builder.encryptionPassword)) {
+			throw new RuntimeException("Unable to initialize EncryptedPreferences! Did you forget to set a password using Builder.withEncryptionPassword" + "" +
 											   "(encryptionKey) ?");
 		} else {
 			this.cryptoKey = builder.encryptionPassword;
@@ -52,11 +89,82 @@ public final class EncryptedPreferences {
 		this.encryptedEditor = new EncryptedEditor(this);
 		this.utils = new Utils(this);
 		this.printDebugMessages = builder.context.getResources().getBoolean(R.bool.enable_debug_messages);
+		this.listeners = new ArrayList<>();
+		if (!builder.listeners.isEmpty()) {
+			for (OnSharedPreferenceChangeListener listener : builder.listeners) {
+				registerListener(listener);
+			}
+		}
+		if (builder.singleton) {
+			singletonInstance = this;
+		}
 	}
 
 	private synchronized void log(String logMessage) {
 		if (printDebugMessages) {
 			Log.d(TAG, logMessage);
+		}
+	}
+
+	private void registerListener(OnSharedPreferenceChangeListener listener) {
+		if (checkIfListenerExist(listener)) {
+			log("registerListener() : " + listener + " is already registered - skip adding.");
+		} else {
+			OnSharedPreferenceChangeListenerImpl listenerImpl = new OnSharedPreferenceChangeListenerImpl(this, listener);
+			sharedPreferences.registerOnSharedPreferenceChangeListener(listenerImpl);
+			listeners.add(listenerImpl);
+			log("registerListener() : interface registered: " + listener + " ");
+		}
+	}
+
+	private void unregisterListener(OnSharedPreferenceChangeListener listener) {
+		if (checkIfListenerExist(listener)) {
+			OnSharedPreferenceChangeListenerImpl listenerImpl = getListenerImpl(listener);
+			sharedPreferences.unregisterOnSharedPreferenceChangeListener(listenerImpl);
+			removeListenerImpl(listener);
+			log("unregisterListener() : " + listenerImpl + " ( interface: " + listener + " )");
+		} else {
+			log("unregisterListener() : unable to find registered listener ( " + listener + ")");
+		}
+	}
+
+	private OnSharedPreferenceChangeListenerImpl getListenerImpl(OnSharedPreferenceChangeListener listener) {
+		for (OnSharedPreferenceChangeListenerImpl listenerImpl : listeners) {
+			if (listener.equals(listenerImpl.getListenerInterface())) {
+				return listenerImpl;
+			}
+		}
+		return null;
+	}
+
+	private boolean checkIfListenerExist(OnSharedPreferenceChangeListener changeListener) {
+		for (OnSharedPreferenceChangeListenerImpl listenerImpl : listeners) {
+			if (changeListener.equals(listenerImpl.getListenerInterface())) {
+				log("checkListener() : " + changeListener + " found implementation: " + listenerImpl);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void removeListenerImpl(OnSharedPreferenceChangeListener listener) {
+		log("removeListenerImpl() : requested for " + listener);
+		for (int i = 0; i < listeners.size(); i++) {
+			OnSharedPreferenceChangeListenerImpl listenerImpl = listeners.get(i);
+			if (listener.equals(listenerImpl.getListenerInterface())) {
+				listeners.remove(i);
+				log("removeListenerImpl() : removed listener at position: " + i);
+			}
+		}
+	}
+
+	private void printListeners() {
+		if (listeners.isEmpty()) {
+			log("printListeners() => no listeners found");
+		} else {
+			for (OnSharedPreferenceChangeListenerImpl listenerImpl : listeners) {
+				log("printListeners() => " + listenerImpl);
+			}
 		}
 	}
 
@@ -233,6 +341,69 @@ public final class EncryptedPreferences {
 	}
 
 	/**
+	 * Allows you to import your unencrypted {@linkplain SharedPreferences}.
+	 * This will immediately encrypt all your values without modifying them.
+	 *
+	 * @param sharedPreferences - The unencrypted {@linkplain SharedPreferences} instance
+	 * @param override - Whether to override existing keys (and their values) or not
+	 */
+	public void importSharedPreferences(SharedPreferences sharedPreferences, boolean override) {
+		importSharedPreferences(sharedPreferences, override, false);
+	}
+
+	/**
+	 * Allows you to import your unencrypted {@linkplain SharedPreferences}.
+	 * This will immediately encrypt all your values without modifying them.
+	 *
+	 * @param sharedPreferences - The unencrypted {@linkplain SharedPreferences} instance
+	 * @param override - Whether to override existing keys (and their values) or not
+	 * @param removeAfter - Whether to remove the old unencrypted entries after encrypting or not
+	 */
+	public void importSharedPreferences(SharedPreferences sharedPreferences, boolean override, boolean removeAfter) {
+		if (sharedPreferences != null) {
+			Map<String, ?> values = sharedPreferences.getAll();
+			int importCount = 0;
+			for (String key : values.keySet()) {
+				if (!contains(key) || (contains(key) && override)) {
+					log("-> Importing key: " + key);
+					encryptedEditor.putValue(key, String.valueOf(values.get(key)));
+					encryptedEditor.apply();
+					++importCount;
+					if(removeAfter && contains(key)) {
+						sharedPreferences.edit().remove(key).apply();
+						log("-> Deleted entry for key : " + key);
+					}
+				} else {
+					log("-> Skip import for " + key + " : key already exist");
+				}
+			}
+			log("Import finished! (" + importCount + "/" + values.size() + " entries imported)");
+		}
+	}
+
+	/**
+	 * Registers a callback to be invoked when a change happens to a preference.
+	 * @param listener The callback that will run.
+	 * @see #unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener)
+	 */
+	public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+		if (listener != null) {
+			registerListener(listener);
+		}
+	}
+
+	/**
+	 * Unregisters a previous callback.
+	 * @param listener The callback that should be unregistered.
+	 * @see #registerOnSharedPreferenceChangeListener
+	 */
+	public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+		if (listener != null) {
+			unregisterListener(listener);
+		}
+	}
+
+	/**
 	 * A class for several utility methods.
 	 */
 	public final class Utils {
@@ -263,6 +434,34 @@ public final class EncryptedPreferences {
 
 	}
 
+
+
+	private class OnSharedPreferenceChangeListenerImpl implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+		private final OnSharedPreferenceChangeListener listener;
+		private final EncryptedPreferences             encryptedPreferences;
+
+		private OnSharedPreferenceChangeListenerImpl(EncryptedPreferences encryptedPreferences, OnSharedPreferenceChangeListener listener) {
+			this.listener = listener;
+			this.encryptedPreferences = encryptedPreferences;
+		}
+
+		protected OnSharedPreferenceChangeListener getListenerInterface() {
+			return listener;
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (checkIfListenerExist(listener)) {
+				log("onSharedPreferenceChanged() : found listener " + listener);
+				listener.onSharedPreferenceChanged(encryptedPreferences, encryptedPreferences.getUtils().decryptStringValue(key));
+			} else {
+				log("onSharedPreferenceChanged() : couldn't find listener (" + listener + ")");
+			}
+		}
+
+	}
+
 	/**
 	 * Class used for modifying values in a {@link EncryptedPreferences} object. All changes you make in an editor are batched, and not copied back to the
 	 * original {@link EncryptedPreferences} until you call {@link EncryptedEditor#apply()}.
@@ -270,10 +469,12 @@ public final class EncryptedPreferences {
 	public final class EncryptedEditor {
 
 		private final String TAG = EncryptedEditor.class.getSimpleName();
-		private final EncryptedPreferences encryptedPreferences;
+		private final EncryptedPreferences     encryptedPreferences;
+		private final SharedPreferences.Editor editor;
 
 		private EncryptedEditor(EncryptedPreferences encryptedPreferences) {
 			this.encryptedPreferences = encryptedPreferences;
+			this.editor = encryptedPreferences.sharedPreferences.edit();
 		}
 
 		private synchronized void log(String logMessage) {
@@ -283,7 +484,7 @@ public final class EncryptedPreferences {
 		}
 
 		private SharedPreferences.Editor editor() {
-			return encryptedPreferences.sharedPreferences.edit();
+			return editor;
 		}
 
 		private String encryptValue(String value) {
@@ -294,7 +495,7 @@ public final class EncryptedPreferences {
 
 		private void putValue(String key, String value) {
 			log("putValue() => " + key + " [" + encryptValue(key) + "] || " + value + " [" + encryptValue(value) + "]");
-			editor().putString(encryptValue(key), encryptValue(value)).apply();
+			editor().putString(encryptValue(key), encryptValue(value));
 		}
 
 		/**
@@ -386,6 +587,26 @@ public final class EncryptedPreferences {
 			editor().apply();
 		}
 
+		/**
+		 * Commit your preferences changes back from this Editor to the
+		 * {@link EncryptedPreferences} object it is editing.  This atomically
+		 * performs the requested modifications, replacing whatever is currently
+		 * in the EncryptedPreferences.
+		 *
+		 * <p>Note that when two editors are modifying preferences at the same
+		 * time, the last one to call commit wins.
+		 *
+		 * <p>If you don't care about the return value and you're
+		 * using this from your application's main thread, consider
+		 * using {@link #apply} instead.
+		 *
+		 * @return Returns true if the new values were successfully written
+		 * to persistent storage.
+		 */
+		public boolean commit() {
+			return editor().commit();
+		}
+
 	}
 
 	/**
@@ -396,6 +617,8 @@ public final class EncryptedPreferences {
 		private final Context context;
 		private       String  encryptionPassword;
 		private       String  prefsName;
+		private boolean singleton = false;
+		private final List<OnSharedPreferenceChangeListener> listeners;
 
 		/**
 		 * The Builder's constructor
@@ -403,6 +626,7 @@ public final class EncryptedPreferences {
 		 */
 		public Builder(Context context) {
 			this.context = context.getApplicationContext();
+			this.listeners = new ArrayList<>();
 		}
 
 		/**
@@ -422,6 +646,32 @@ public final class EncryptedPreferences {
 		 */
 		public Builder withPreferenceName(String preferenceName) {
 			this.prefsName = preferenceName;
+			return this;
+		}
+
+		/**
+		 * Specify the {@link EncryptedPreferences} instance to be configured as Singleton.
+		 * This allows you to retrieve this configured
+		 * {@link EncryptedPreferences} instance from wherever you need it inside your application by calling {@link EncryptedPreferences#getSingletonInstance()}.
+		 * @param singleton - Whether to configure the configured {@link EncryptedPreferences} instance to be a singleton or not.
+		 * @return
+		 * @see {@link EncryptedPreferences#getSingletonInstance()}
+		 */
+		public Builder withSaveAsSingleton(boolean singleton) {
+			this.singleton = singleton;
+			return this;
+		}
+
+		/**
+		 * Specify an {@link OnSharedPreferenceChangeListener} which will be registered immediately once the EncryptedPreference instance is initialized.
+		 * This method can be called multiple times to register multiple {@link OnSharedPreferenceChangeListener}.
+		 * @param listener - The {@link OnSharedPreferenceChangeListener} which should be registered
+		 * @return
+		 */
+		public Builder withOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+			if (listener != null) {
+				this.listeners.add(listener);
+			}
 			return this;
 		}
 
