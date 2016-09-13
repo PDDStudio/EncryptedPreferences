@@ -10,8 +10,10 @@ import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An AES-256 encrypted {@linkplain SharedPreferences} class, to read and write encrypted preferences.
@@ -95,9 +97,7 @@ public final class EncryptedPreferences {
 				registerListener(listener);
 			}
 		}
-		if (builder.singleton) {
-			singletonInstance = this;
-		}
+		singletonInstance = builder.singleton ? this : null;
 	}
 
 	private synchronized void log(String logMessage) {
@@ -310,6 +310,30 @@ public final class EncryptedPreferences {
 	 */
 	public String getString(String key, String defaultValue) {
 		return (String) decryptType(key, "", defaultValue);
+	}
+
+	/**
+	 * Retrieve a {@linkplain Set<String>} of all currently stored keys.
+	 * @param decrypt - Whether to decrypt stored keys before returning them or not.
+	 * @return {@linkplain Set<String>} - Set with all stored keys.
+	 */
+	public Set<String> getAllKeys(boolean decrypt) {
+		if(decrypt) {
+			Set<String> decryptedKeySet = new HashSet<>();
+			for(String key : sharedPreferences.getAll().keySet()) {
+				decryptedKeySet.add(decryptString(key));
+			}
+			return decryptedKeySet;
+		}
+		return sharedPreferences.getAll().keySet();
+	}
+
+	/**
+	 * Retrieve a {@linkplain Set<String>} of all currently stored keys.
+	 * @return {@linkplain Set<String>} - Set with all stored keys.
+	 */
+	public Set<String> getAllKeys() {
+		return getAllKeys(true);
 	}
 
 	/**
