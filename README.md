@@ -22,7 +22,7 @@ Add the library as dependency to your app's `build.gradle` file.
 
 ```
 dependencies {
-    compile 'com.pddstudio:encrypted-preferences:1.1.0'
+    compile 'com.pddstudio:encrypted-preferences:1.2.0'
 }
 ```
 Make sure you're always using the latest version, which can be found on [Maven Central](http://search.maven.org/#artifactdetails%7Ccom.pddstudio%7Cencrypted-preferences).
@@ -35,6 +35,8 @@ To start using EncryptedPreferences you have to create a new instance using the 
 ```java
 EncryptedPreferences encryptedPreferences = new EncryptedPreferences.Builder(this).withEncryptionPassword("password").build();
 ```
+
+**Note:** Starting with version 1.2.0 the support for default (password/key) configuration is deprecated due to security reasons. Therefore it's now required to specify your own password using the Builder's `.withEncryptionPassword("password")` method. If no password is set a `RuntimeException` will be thrown.
 
 Once you created your `EncryptedPreferences` instance, you can read and write values.
 
@@ -61,6 +63,38 @@ private void printValues() {
 		Log.d("MainActivity", TEST_KEY_VALUE_LONG + " => " + encryptedPreferences.getLong(TEST_KEY_VALUE_LONG, 0));
 		Log.d("MainActivity", TEST_KEY_VALUE_BOOLEAN + " => " + encryptedPreferences.getBoolean(TEST_KEY_VALUE_BOOLEAN, true));
 	}
+```
+
+**Listening for Changes:**
+
+Beginning with version 1.2.0 it is possible to get notified when a value changed (added/updated/removed). 
+
+You can receive change events by implementing the `EncryptedPreferences.OnSharedPreferenceChangeListener` interface into your Activity/Fragment (or custom component). Make sure to respect your component's lifecycle and register/unregister the listener(s) to avoid unwanted behaviours.
+
+```java
+
+	@Override
+	protected void onCreate() {
+		super.onCreate();
+		//some other stuff here...
+		
+		//register the listener
+		encryptedPreferences.registerOnSharedPreferenceChangeListener(this);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		//unregister the listener before destroying the Activity/Fragment
+		encryptedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(EncryptedPreferences encryptedPreferences, String key) {
+		//do your stuff with the changed data here
+		Log.d("MainActivity", "onSharedPreferenceChanged() => key: " + key);
+	}
+
 ```
 
 For more information about how to read and write data to SharedPreferences, head over to the [official Android Developer Guide](https://developer.android.com/training/basics/data-storage/shared-preferences.html).
