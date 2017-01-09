@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply from: 'maven-push.gradle'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "24.0.3"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 24
+        targetSdkVersion 25
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 4
         versionName "1.2.0"
@@ -25,8 +25,8 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test:runner:0.4'
-    androidTestCompile 'com.android.support.test:rules:0.4'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile 'com.squareup.assertj:assertj-android:1.1.1'
 
     compile 'com.scottyab:aescrypt:0.0.1'
