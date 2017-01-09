@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Strings for AboutLibraries (https://github.com/mikepenz/AboutLibraries) recognition -->
+	<string name="define_EncryptedPreferences"></string>
+	<string name="library_EncryptedPreferences_author">Patrick J</string>
+	<string name="library_EncryptedPreferences_authorWebsite">http://pddstudio.com/</string>
+	<string name="library_EncryptedPreferences_libraryName">EncryptedPreferences</string>
+	<string name="library_EncryptedPreferences_libraryDescription">An Android Library to securely read and write encrypted values to your SharedPreferences.</string>
+	<string name="library_EncryptedPreferences_libraryVersion">1.2.0</string>
+	<string name="library_EncryptedPreferences_libraryWebsite">https://github.com/PDDStudio/EncryptedPreferences</string>
+	<string name="library_EncryptedPreferences_licenseId">apache_2_0</string>
+	<string name="library_EncryptedPreferences_isOpenSource">true</string>
+	<string name="library_EncryptedPreferences_repositoryLink">https://github.com/PDDStudio/EncryptedPreferences</string>
+</resources>
