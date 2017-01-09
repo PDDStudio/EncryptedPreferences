@@ -168,6 +168,26 @@ public final class EncryptedPreferences {
 		}
 	}
 
+	private void removeExistingPreferenceKey(String preferenceKey) {
+		removeExistingPreferenceKeys(preferenceKey);
+	}
+
+	private void removeExistingPreferenceKeys(String... preferenceKeys) {
+		Set<String> targetEntries = new HashSet<>();
+		for(String key : preferenceKeys) {
+			if (sharedPreferences.contains(key)) {
+				targetEntries.add(key);
+			} else {
+				log("removeExistingPreferenceKey() : Couldn't find key '" + key + "' ! Skipping...");
+			}
+		}
+		SharedPreferences.Editor batchEditor = sharedPreferences.edit();
+		for(String targetKey : targetEntries) {
+			batchEditor.remove(targetKey);
+		}
+		batchEditor.apply();
+	}
+
 	private String encryptString(String message) {
 		try {
 			String encString = AESCrypt.encrypt(cryptoKey, message);
@@ -403,6 +423,19 @@ public final class EncryptedPreferences {
 			}
 			log("Import finished! (" + importCount + "/" + values.size() + " entries imported)");
 		}
+	}
+
+	/**
+	 * Deletes all existing preference entries stored in its underlying {@linkplain SharedPreferences} instance.
+	 * This should be used with caution as because {@link EncryptedPreferences} won't respect non-encrypted values during deletion.
+	 * The operation is completely key-based, therefore no encryption key is required.
+	 * <b>Removed values cannot be restored!</b>
+	 *
+	 * @see {@linkplain SharedPreferences#getAll()}
+	 */
+	public void forceDeleteExistingPreferences() {
+		Set<String> storedKeys = sharedPreferences.getAll().keySet();
+		removeExistingPreferenceKeys(storedKeys.toArray(new String[storedKeys.size()]));
 	}
 
 	/**

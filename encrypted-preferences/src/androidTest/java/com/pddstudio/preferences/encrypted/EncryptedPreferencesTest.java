@@ -13,6 +13,8 @@ import java.util.Random;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertSame;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -139,6 +141,16 @@ public class EncryptedPreferencesTest {
 		SharedPreferences preferences = createMockPreferences("mock_preferences", true);
 		encryptedPreferences.importSharedPreferences(preferences, true);
 		assertEquals(encryptedPreferences.getAllKeys().size(), preferences.getAll().size());
+	}
+
+	@Test
+	public void testForceDeleteExistingPreferences() {
+		int storedPreferencesCount = encryptedPreferences.getAllKeys(false).size();
+		assertNotSame(0, storedPreferencesCount);
+
+		encryptedPreferences.forceDeleteExistingPreferences();
+		int newPreferencesCount = encryptedPreferences.getAllKeys(false).size();
+		assertSame(0, newPreferencesCount);
 	}
 
 }
