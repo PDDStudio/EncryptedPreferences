@@ -22,7 +22,7 @@ Add the library as dependency to your app's `build.gradle` file.
 
 ```
 dependencies {
-    compile 'com.pddstudio:encrypted-preferences:1.4.0'
+    compile 'com.pddstudio:encrypted-preferences:1.3.0'
 }
 ```
 Make sure you're always using the latest version, which can be found on [Maven Central](http://search.maven.org/#artifactdetails%7Ccom.pddstudio%7Cencrypted-preferences).
