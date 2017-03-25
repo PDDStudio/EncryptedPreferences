@@ -44,11 +44,11 @@ Once you created your `EncryptedPreferences` instance, you can read and write va
 
 ```java
 encryptedPreferences.edit()
-				.putString(TEST_KEY_VALUE_STRING, "testString")
-				.putFloat(TEST_KEY_VALUE_FLOAT, 1.5f)
-				.putLong(TEST_KEY_VALUE_LONG, 10L)
-				.putBoolean(TEST_KEY_VALUE_BOOLEAN, false)
-				.apply();
+		.putString(TEST_KEY_VALUE_STRING, "testString")
+		.putFloat(TEST_KEY_VALUE_FLOAT, 1.5f)
+		.putLong(TEST_KEY_VALUE_LONG, 10L)
+		.putBoolean(TEST_KEY_VALUE_BOOLEAN, false)
+		.apply();
 ```
 
 *Note:*
@@ -58,11 +58,11 @@ As with the official SharedPreferences API, make sure to call `apply()` in order
 
 ```java
 private void printValues() {
-		Log.d("MainActivity", TEST_KEY_VALUE_STRING + " => " + encryptedPreferences.getString(TEST_KEY_VALUE_STRING, TEST_KEY_VALUE_STRING));
-		Log.d("MainActivity", TEST_KEY_VALUE_FLOAT + " => " + encryptedPreferences.getFloat(TEST_KEY_VALUE_FLOAT, 0));
-		Log.d("MainActivity", TEST_KEY_VALUE_LONG + " => " + encryptedPreferences.getLong(TEST_KEY_VALUE_LONG, 0));
-		Log.d("MainActivity", TEST_KEY_VALUE_BOOLEAN + " => " + encryptedPreferences.getBoolean(TEST_KEY_VALUE_BOOLEAN, true));
-	}
+	Log.d("MainActivity", TEST_KEY_VALUE_STRING + " => " + encryptedPreferences.getString(TEST_KEY_VALUE_STRING, TEST_KEY_VALUE_STRING));
+	Log.d("MainActivity", TEST_KEY_VALUE_FLOAT + " => " + encryptedPreferences.getFloat(TEST_KEY_VALUE_FLOAT, 0));
+	Log.d("MainActivity", TEST_KEY_VALUE_LONG + " => " + encryptedPreferences.getLong(TEST_KEY_VALUE_LONG, 0));
+	Log.d("MainActivity", TEST_KEY_VALUE_BOOLEAN + " => " + encryptedPreferences.getBoolean(TEST_KEY_VALUE_BOOLEAN, true));
+}
 ```
 
 **Listening for Changes:**
@@ -72,29 +72,27 @@ Beginning with version 1.2.0 it is possible to get notified when a value changed
 You can receive change events by implementing the `EncryptedPreferences.OnSharedPreferenceChangeListener` interface into your Activity/Fragment (or custom component). Make sure to respect your component's lifecycle and register/unregister the listener(s) to avoid unwanted behaviours.
 
 ```java
-
-	@Override
-	protected void onCreate() {
-		super.onCreate();
-		//some other stuff here...
-		
-		//register the listener
-		encryptedPreferences.registerOnSharedPreferenceChangeListener(this);
-	}
+@Override
+protected void onCreate() {
+	super.onCreate();
+	//some other stuff here...
 	
-	@Override
-	protected void onDestroy() {
-		//unregister the listener before destroying the Activity/Fragment
-		encryptedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-		super.onDestroy();
-	}
+	//register the listener
+	encryptedPreferences.registerOnSharedPreferenceChangeListener(this);
+}
 	
-	@Override
-	public void onSharedPreferenceChanged(EncryptedPreferences encryptedPreferences, String key) {
-		//do your stuff with the changed data here
-		Log.d("MainActivity", "onSharedPreferenceChanged() => key: " + key);
-	}
+@Override
+protected void onDestroy() {
+	//unregister the listener before destroying the Activity/Fragment
+	encryptedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+	super.onDestroy();
+}
 
+@Override
+public void onSharedPreferenceChanged(EncryptedPreferences encryptedPreferences, String key) {
+	//do your stuff with the changed data here
+	Log.d("MainActivity", "onSharedPreferenceChanged() => key: " + key);
+}
 ```
 
 For more information about how to read and write data to SharedPreferences, head over to the [official Android Developer Guide](https://developer.android.com/training/basics/data-storage/shared-preferences.html).
@@ -109,13 +107,13 @@ You can retrieve the `EncryptedPreferences.Utils` instance by calling `getUtils(
 
 ```java
 private void utilsExample() {
-		//get the encrypted value for an api key while debugging, so we don't have to save the original api key as plain text in production.
-		String encryptedApiKey = encryptedPreferences.getUtils().encryptStringValue("SOME_API_KEY_HERE");
-		Log.d("MainActivity", "encryptedApiKey => " + encryptedApiKey);
-		//in production we simply use the utility method with the encrypted value which we got from debugging.
-		String decryptedApiKey = encryptedPreferences.getUtils().decryptStringValue(encryptedApiKey);
-		Log.d("MainActivity", "decryptedApiKey => " + decryptedApiKey);
-	}
+	//get the encrypted value for an api key while debugging, so we don't have to save the original api key as plain text in production.
+	String encryptedApiKey = encryptedPreferences.getUtils().encryptStringValue("SOME_API_KEY_HERE");
+	Log.d("MainActivity", "encryptedApiKey => " + encryptedApiKey);
+	//in production we simply use the utility method with the encrypted value which we got from debugging.
+	String decryptedApiKey = encryptedPreferences.getUtils().decryptStringValue(encryptedApiKey);
+	Log.d("MainActivity", "decryptedApiKey => " + decryptedApiKey);
+}
 ```
 
 ##Third-Party Libraries
