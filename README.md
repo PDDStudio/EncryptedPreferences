@@ -1,11 +1,11 @@
-##EncryptedPreferences
+## EncryptedPreferences
 An Android Library to securely read and write encrypted values to your SharedPreferences.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.pddstudio/encrypted-preferences/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.pddstudio/encrypted-preferences)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-EncryptedPreferences-green.svg?style=true)](https://android-arsenal.com/details/1/4280)
 
 
-##Reason & Explanation
+## Reason & Explanation
 
 When developing an Android application you often save primitive values to your application's internal storage using [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences.html).
 
@@ -15,9 +15,9 @@ EncryptedPreferences is a simple wrapper around the official SharedPreferences A
 
 EncryptedPreferences aims to have the same API as the official SharedPreferences, to make it as easy as possible to integrate it into your application.
 
-##Getting Started
+## Getting Started
 
-###Add the library as dependency
+### Add the library as dependency
 Add the library as dependency to your app's `build.gradle` file.
 
 ```
@@ -27,7 +27,7 @@ dependencies {
 ```
 Make sure you're always using the latest version, which can be found on [Maven Central](http://search.maven.org/#artifactdetails%7Ccom.pddstudio%7Cencrypted-preferences).
 
-###Start using EncryptedPreferences
+### Start using EncryptedPreferences
 To start using EncryptedPreferences you have to create a new instance using the `EncryptedPreferences.Builder`.
 
 **Example:**
@@ -118,14 +118,14 @@ private void utilsExample() {
 	}
 ```
 
-##Third-Party Libraries
+## Third-Party Libraries
 This library is using [AESCrypt-Android](https://github.com/scottyab/AESCrypt-Android) by [scottyab](https://github.com/scottyab).
 
-##About & Contact
+## About & Contact
 - In case you've a question feel free to hit me up via E-Mail (patrick.pddstudio[at]googlemail.com) 
 - or [Google+](http://plus.google.com/+PatrickJung42) / Hangouts
 
-##License
+## License
 ```
     Copyright 2016 Patrick J
 
